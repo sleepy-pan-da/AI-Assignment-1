@@ -1,5 +1,4 @@
 import json
-import math
 from queue import PriorityQueue
 
 
@@ -34,15 +33,15 @@ class Node: # generated_nodes_dictionary will have Nodes as values
 def uniform_cost_search_2(start_node : str, end_node : str, energy_budget : int):
     # Impt Data Structures
     nodes_to_expand : PriorityQueue = PriorityQueue() # node with the lowest distance will be expanded
-    visited_nodes_dictionary = {} 
+    generated_nodes_dictionary = {} 
 
     # Set up starting node
     nodes_to_expand.put((0, start_node)) # first element is f(n)/total cost, second element is node_label
-    visited_nodes_dictionary[start_node] = Node(0, "0", 0) 
+    generated_nodes_dictionary[start_node] = Node(0, "0", 0) 
 
     while nodes_to_expand.not_empty:
         current_expanded_node = nodes_to_expand.get()[1]
-        visited_nodes_dictionary[current_expanded_node].expanded = True
+        generated_nodes_dictionary[current_expanded_node].expanded = True
 
         # terminating condition
         if current_expanded_node == end_node:
@@ -53,30 +52,30 @@ def uniform_cost_search_2(start_node : str, end_node : str, energy_budget : int)
         for i in neighbours_of_expanded_node:
 
             # don't explore expanded nodes, prevents traversal of nodes from looping
-            if visited_nodes_dictionary.get(i) is not None and visited_nodes_dictionary.get(i).expanded:
+            if generated_nodes_dictionary.get(i) is not None and generated_nodes_dictionary.get(i).expanded:
                 continue
             
 
             # g(n)
-            path_cost_from_starting_node_to_neighbour = visited_nodes_dictionary[current_expanded_node].path_cost_from_starting_node_to_current_node 
+            path_cost_from_starting_node_to_neighbour = generated_nodes_dictionary[current_expanded_node].path_cost_from_starting_node_to_current_node 
             two_nodes_string : str = current_expanded_node + "," + i 
             path_cost_from_starting_node_to_neighbour += dist_btw_2_nodes_dictionary[two_nodes_string]
             
             # energy cost
-            energy_cost_from_starting_node_to_neighbour = visited_nodes_dictionary[current_expanded_node].energy_cost_from_starting_node_to_current_node
+            energy_cost_from_starting_node_to_neighbour = generated_nodes_dictionary[current_expanded_node].energy_cost_from_starting_node_to_current_node
             energy_cost_from_starting_node_to_neighbour += energy_cost_btw_2_nodes_dictionary[two_nodes_string]
             if energy_cost_from_starting_node_to_neighbour > energy_budget:
                 continue
             
 
-            if visited_nodes_dictionary.get(i) is not None:
-                if path_cost_from_starting_node_to_neighbour < visited_nodes_dictionary[i].path_cost_from_starting_node_to_current_node:
+            if generated_nodes_dictionary.get(i) is not None:
+                if path_cost_from_starting_node_to_neighbour < generated_nodes_dictionary[i].path_cost_from_starting_node_to_current_node:
                     # you found a better route to node i!!
 
                     # update node i in generated_nodes_dictionary
-                    visited_nodes_dictionary[i].path_cost_from_starting_node_to_current_node = path_cost_from_starting_node_to_neighbour
-                    visited_nodes_dictionary[i].previous_node = current_expanded_node
-                    visited_nodes_dictionary[i].energy_cost_from_starting_node_to_current_node = energy_cost_from_starting_node_to_neighbour
+                    generated_nodes_dictionary[i].path_cost_from_starting_node_to_current_node = path_cost_from_starting_node_to_neighbour
+                    generated_nodes_dictionary[i].previous_node = current_expanded_node
+                    generated_nodes_dictionary[i].energy_cost_from_starting_node_to_current_node = energy_cost_from_starting_node_to_neighbour
 
                     # update node i in nodes_to_expand by
                     # popping out the elements in nodes_to_expand into temp_list to find node i
@@ -96,12 +95,12 @@ def uniform_cost_search_2(start_node : str, end_node : str, energy_budget : int)
             else:
                 nodes_to_expand.put((path_cost_from_starting_node_to_neighbour, i))
                 # update generated_nodes_dictionary with neighbour node's info
-                visited_nodes_dictionary[i] = Node(path_cost_from_starting_node_to_neighbour, current_expanded_node, energy_cost_from_starting_node_to_neighbour)
+                generated_nodes_dictionary[i] = Node(path_cost_from_starting_node_to_neighbour, current_expanded_node, energy_cost_from_starting_node_to_neighbour)
 
     shortest_path = [end_node]
     current_node = shortest_path[0]
     while True:
-        node_to_backtrack_to = visited_nodes_dictionary[current_node].previous_node
+        node_to_backtrack_to = generated_nodes_dictionary[current_node].previous_node
         if node_to_backtrack_to == "0":
             break
         else:
@@ -116,8 +115,8 @@ def uniform_cost_search_2(start_node : str, end_node : str, energy_budget : int)
             print(node_label + ".")
 
     print()    
-    print("Shortest distance: " + str(visited_nodes_dictionary[end_node].path_cost_from_starting_node_to_current_node) + ".")
-    print("Total energy cost: " + str(visited_nodes_dictionary[end_node].energy_cost_from_starting_node_to_current_node) + ".")
+    print("Shortest distance: " + str(generated_nodes_dictionary[end_node].path_cost_from_starting_node_to_current_node) + ".")
+    print("Total energy cost: " + str(generated_nodes_dictionary[end_node].energy_cost_from_starting_node_to_current_node) + ".")
 
 
 
